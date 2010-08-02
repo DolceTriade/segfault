@@ -1422,7 +1422,7 @@ void CL_RequestMotd( void ) {
 	if ( !cl_motd->integer ) {
 		return;
 	}
-	Com_Printf( "Resolving %s\n", MASTER_SERVER_NAME );
+	Com_DPrintf( "Resolving %s\n", MASTER_SERVER_NAME );
 
 	switch( NET_StringToAdr( MASTER_SERVER_NAME, &cls.updateServer,
 	                         NA_UNSPEC ) )
@@ -1437,7 +1437,7 @@ void CL_RequestMotd( void ) {
 			break;
 	}
 
-	Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME,
+	Com_DPrintf( "%s resolved to %s\n", MASTER_SERVER_NAME,
 	            NET_AdrToStringwPort( cls.updateServer ) );
 
 	info[0] = 0;
