@@ -1,0 +1,53 @@
+== vstr enhancements ==
+
+_if_ - use if statements
+
+_concat_ - concatenate two strings
+
+_strcmp_ - compare two strings
+
+_math_ - use math functions with vstr
+
+{{{---------------------------------------------------}}}
+
+== Reduced map change spam ==
+
+{{{---------------------------------------------------}}}
+
+== Console appearance controls ==
+
+_scr_conUseShader_ - 0/1 | Enable/Disable the use of console shader
+
+_scr_conColorAlpha_ - 0-1 | Scale of how much alpha layer is shown
+
+_scr_conColorRed_ - 0-1 | Scale of how much red layer is shown
+
+_scr_conColorBlue_ - 0-1 | Scale of how much blue layer is shown
+
+_scr_conColorGreen_ - 0-1 | Scale of how much green layer is shown
+
+==== Console bar color/height ====
+
+_scr_conBarColorRed_  - 0-1 | Scale of how much red layer is shown
+
+_scr_conBarColorBlue_ - 0-1 | Scale of how much blue layer is shown
+
+_scr_conBarColorGreen_ - 0-1 | Scale of how much green layer is shown
+
+_scr_conBarHeight_ - 0-1 | Scale of how much big the console bar is
+
+{{{---------------------------------------------------}}}
+
+== Bloom ==
+
+_r_bloom_ - 0/1 | Enable/Disable bloom
+
+_r_bloom_alpha_ - 0-1 | Scale of how much alpha layer is shown
+
+_r_bloom_diamond_size_ - Size of the diamonds
+
+_r_bloom_intensity_ - Intensity of bloom
+
+_r_bloom_darken_ - How much to darken bloom
+
+_r_bloom_sample_size_ - Number of samples 
