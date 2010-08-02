@@ -33,9 +33,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # define PRODUCT_VERSION          "1.1.0"
 #endif
 
-#define CLIENT_WINDOW_TITLE       "Tremulous " PRODUCT_VERSION
-#define CLIENT_WINDOW_MIN_TITLE   "Tremulous"
-#define Q3_VERSION                 PRODUCT_NAME " " PRODUCT_VERSION
+#define CLIENT_WINDOW_TITLE       "SEGFAULT"
+#define CLIENT_WINDOW_MIN_TITLE   "SEGFAULT"
+#define Q3_VERSION                "SEGFAULT"
+
+//#define CLIENT_WINDOW_TITLE       "Tremulous " PRODUCT_VERSION
+//#define CLIENT_WINDOW_MIN_TITLE   "Tremulous"
+//#define Q3_VERSION                 PRODUCT_NAME " " PRODUCT_VERSION
 
 #define GAMENAME_FOR_MASTER       "Tremulous"
 

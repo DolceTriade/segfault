@@ -940,11 +940,11 @@ emit_do_syscall:
 	{
 		struct timeval tvdone =  {0, 0};
 		struct timeval dur =  {0, 0};
-		Com_Printf( "VM file %s compiled to %i bytes of code (%p - %p)\n", vm->name, vm->codeLength, vm->codeBase, vm->codeBase+vm->codeLength );
+		Com_DPrintf( "VM file %s compiled to %i bytes of code (%p - %p)\n", vm->name, vm->codeLength, vm->codeBase, vm->codeBase+vm->codeLength );
 
 		gettimeofday(&tvdone, NULL);
 		timersub(&tvdone, &tvstart, &dur);
-		Com_Printf( "compilation took %lu.%06lu seconds\n", dur.tv_sec, dur.tv_usec );
+		Com_DPrintf( "compilation took %lu.%06lu seconds\n", dur.tv_sec, dur.tv_usec );
 	}
 }
 

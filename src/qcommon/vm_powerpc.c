@@ -2096,7 +2096,7 @@ VM_Compile( vm_t *vm, vmHeader_t *header )
 	{
 		struct timeval tvdone = {0, 0};
 		struct timeval dur = {0, 0};
-		Com_Printf( "VM file %s compiled to %i bytes of code (%p - %p)\n",
+		Com_DPrintf( "VM file %s compiled to %i bytes of code (%p - %p)\n",
 			vm->name, vm->codeLength, vm->codeBase, vm->codeBase+vm->codeLength );
 
 		gettimeofday(&tvdone, NULL);
