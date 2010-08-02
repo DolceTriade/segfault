@@ -392,6 +392,11 @@ void Cbuf_Execute (void);
 // Normally called once per frame, but may be explicitly invoked.
 // Do not call inside a command function, or current args will be destroyed.
 
+void Cdelay_Frame (void);
+//Check if a delayed command have to be executed and decreases the remaining
+//delay time for all of them
+
+
 //===========================================================================
 
 /*
@@ -443,6 +448,11 @@ void	Cmd_TokenizeStringIgnoreQuotes( const char *text_in );
 void	Cmd_ExecuteString( const char *text );
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
+
+void 	Cmd_WriteAliases( fileHandle_t f );
+// First writes "clearaliases" and then
+// writes lines containing "alias name exec" for all aliases
+
 
 void Cmd_SaveCmdContext( void );
 void Cmd_RestoreCmdContext( void );
