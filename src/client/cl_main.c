@@ -3323,6 +3323,10 @@ void CL_Init( void ) {
 	//
 	// register our variables
 	//
+	
+	//Version of SEGFAULT
+	Cvar_Get ("segfault", "Version 1.1", CVAR_ROM);
+	
 	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
 	cl_motd = Cvar_Get ("cl_motd", "1", 0);
 

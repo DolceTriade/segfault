@@ -664,6 +664,50 @@ void Cmd_Delay_f (void)
         Q_strncpyz(delayed_cmd[i].text, Cmd_ArgsFrom(2), MAX_CMD_LINE);
 }
 
+
+/*
+=============================================================================
+
+					COMMAND EXECUTION
+
+=============================================================================
+*/
+
+typedef struct cmd_function_s
+{
+	struct cmd_function_s	*next;
+	char					*name;
+	xcommand_t				function;
+	completionFunc_t	complete;
+} cmd_function_t;
+
+
+typedef struct cmdContext_s
+{
+	int		argc;
+	char	*argv[ MAX_STRING_TOKENS ];	// points into cmd.tokenized
+	char	tokenized[ BIG_INFO_STRING + MAX_STRING_TOKENS ];	// will have 0 bytes inserted
+	char	cmd[ BIG_INFO_STRING ]; // the original command we received (no token processing)
+} cmdContext_t;
+
+static cmdContext_t		cmd;
+static cmdContext_t		savedCmd;
+static cmd_function_t	*cmd_functions;		// possible commands to execute
+
+/*
+============
+Cmd_FindCommand
+============
+*/
+cmd_function_t *Cmd_FindCommand( const char *cmd_name )
+{
+	cmd_function_t *cmd;
+	for( cmd = cmd_functions; cmd; cmd = cmd->next )
+		if( !Q_stricmp( cmd_name, cmd->name ) )
+			return cmd;
+	return NULL;
+}
+
 /*
 =============================================================================
 
@@ -679,6 +723,7 @@ typedef struct cmd_alias_s
         char                            *exec;
 } cmd_alias_t;
 
+char *Cmd_EscapeString(const char *in);
 static cmd_alias_t      *cmd_aliases = NULL;
 
 /*
@@ -707,6 +752,30 @@ void Cmd_RunAlias_f(void)
 
 /*
 ============
+Cmd_isAlias_f
+============
+*/
+qboolean Cmd_isAlias( char *name )
+{
+        cmd_alias_t     *alias;
+
+        // Find existing alias
+        for (alias = cmd_aliases; alias; alias=alias->next)
+        {
+                if (!strcmp( name, alias->name ))
+                        break;
+        }
+	
+        if (!alias){
+                return qfalse;
+	}
+	else{
+		return qtrue;
+	}
+}
+
+/*
+============
 Cmd_WriteAliases
 ============
 */
@@ -717,7 +786,7 @@ void Cmd_WriteAliases(fileHandle_t f)
         FS_Write(buffer, strlen(buffer), f);
         while (alias)
         {
-                Com_sprintf(buffer, sizeof(buffer), "alias %s \"%s\"\n", alias->name, alias->exec);
+                Com_sprintf(buffer, sizeof(buffer), "alias %s %s\n", alias->name, Cmd_EscapeString( alias->exec ));
                 FS_Write(buffer, strlen(buffer), f);
                 alias = alias->next;
         }
@@ -818,104 +887,75 @@ void Cmd_UnAlias_f(void)
 }
 
 
-/*
-============
-Cmd_Alias_f
-============
-*/
 void Cmd_Alias_f(void)
 {
-        cmd_alias_t     *alias;
-        const char      *name;
-        char            exec[MAX_STRING_CHARS];
-        int                     i;
+	cmd_alias_t	*alias;
+	const char	*name;
 
-        // Get args
-        if (Cmd_Argc() < 2)
-        {
-                Com_Printf("alias <name> : show an alias\n");
-                Com_Printf("alias <name> <exec> : create an alias\n");
-                return;
-        }
-        name = Cmd_Argv(1);
+	// Get args
+	if (Cmd_Argc() < 2)
+	{
+		Com_Printf("alias <name> : show an alias\n");
+		Com_Printf("alias <name> <exec> : create an alias\n");
+		return;
+	}
+	name = Cmd_Argv(1);
 
-        // Find existing alias
-        for (alias = cmd_aliases; alias; alias = alias->next)
-        {
-                if (!strcmp(name, alias->name))
-                        break;
-        }
+	// Find existing alias
+	for (alias = cmd_aliases; alias; alias = alias->next)
+	{
+		if (!Q_stricmp(name, alias->name))
+			break;
+	}
 
-        // Modify/create an alias
-        if (Cmd_Argc() > 2)
-        {
-                // Get the exec string
-                exec[0] = 0;
-                for (i = 2; i < Cmd_Argc(); i++)
-                        Q_strcat(exec, sizeof(exec), va("\"%s\"", Cmd_Argv(i)));
+	// Modify/create an alias
+	if (Cmd_Argc() > 2)
+	{
+		cmd_function_t	*cmd;
 
-                // Create/update an alias
-                if (!alias)
-                {
-                        // CopyString is not used because it can't be unallocated
-                        alias = S_Malloc(sizeof(cmd_alias_t));
-                        alias->name = S_Malloc(strlen(name) + 1);
-                        strcpy(alias->name, name);
-                        alias->exec = S_Malloc(strlen(exec) + 1);
-                        strcpy(alias->exec, exec);
-                        alias->next = cmd_aliases;
-                        cmd_aliases = alias;
-                        Cmd_AddCommand(name, Cmd_RunAlias_f);
-                }
-                else
-                {
-                        // Reallocate the exec string
-                        Z_Free(alias->exec);
-                        alias->exec = S_Malloc(strlen(exec) + 1);
-                        strcpy(alias->exec, exec);
-                }
-        }
-       
-        // Show the alias
-        if (!alias)
-                Com_Printf("Alias %s does not exist\n", name);
-        else
-                Com_Printf("%s ==> %s\n", alias->name, alias->exec);
-       
-        // update autogen.cfg
-        cvar_modifiedFlags |= CVAR_ARCHIVE;
+		// Crude protection from infinite loops
+		if (!Q_stricmp(Cmd_Argv(2), name))
+		{
+			Com_Printf("Can't make an alias to itself\n");
+			return;
+		}
+
+		// Don't allow overriding builtin commands
+		cmd = Cmd_FindCommand( name );
+		if (cmd && cmd->function != Cmd_RunAlias_f)
+		{
+			Com_Printf("Can't override a builtin function with an alias\n");
+			return;
+		}
+
+		// Create/update an alias
+		if (!alias)
+		{
+			alias = S_Malloc(sizeof(cmd_alias_t));
+			alias->name = CopyString(name);
+			alias->exec = CopyString(Cmd_ArgsFrom(2));
+			alias->next = cmd_aliases;
+			cmd_aliases = alias;
+			Cmd_AddCommand(name, Cmd_RunAlias_f);
+		}
+		else
+		{
+			// Reallocate the exec string
+			Z_Free(alias->exec);
+			alias->exec = CopyString(Cmd_ArgsFrom(2));
+			Cmd_AddCommand(name, Cmd_RunAlias_f);
+		}
+	}
+	
+	// Show the alias
+	if (!alias)
+		Com_Printf("Alias %s does not exist\n", name);
+	else if (Cmd_Argc() == 2)
+		Com_Printf("%s ==> %s\n", alias->name, alias->exec);
+	
+	// update autogen.cfg
+	cvar_modifiedFlags |= CVAR_ARCHIVE;
 }
-
-
-
-/*
-=============================================================================
-
-					COMMAND EXECUTION
-
-=============================================================================
-*/
-
-typedef struct cmd_function_s
-{
-	struct cmd_function_s	*next;
-	char					*name;
-	xcommand_t				function;
-	completionFunc_t	complete;
-} cmd_function_t;
-
-
-typedef struct cmdContext_s
-{
-	int		argc;
-	char	*argv[ MAX_STRING_TOKENS ];	// points into cmd.tokenized
-	char	tokenized[ BIG_INFO_STRING + MAX_STRING_TOKENS ];	// will have 0 bytes inserted
-	char	cmd[ BIG_INFO_STRING ]; // the original command we received (no token processing)
-} cmdContext_t;
-
-static cmdContext_t		cmd;
-static cmdContext_t		savedCmd;
-static cmd_function_t	*cmd_functions;		// possible commands to execute
 
 /*
 ============
@@ -1054,6 +1094,36 @@ char *Cmd_Cmd(void)
 {
 	return cmd.cmd;
 }
+
+/*
+============
+Cmd_EscapeString
+
+Escape all \$ in a string into \$$
+============
+*/
+char *Cmd_EscapeString(const char *in)
+{
+        static char buffer[MAX_STRING_CHARS];
+        char *out = buffer;
+        while (*in) {
+                if (out + 3 - buffer >= sizeof(buffer)) {
+                        break;
+                }
+                if (in[0] == '\\' && in[1] == '$') {
+                        out[0] = '\\';
+                        out[1] = '$';
+                        out[2] = '$';
+                        in += 2;
+                        out += 3;
+                } else {
+                        *out++ = *in++;
+                }
+        }
+        *out = '\0';
+        return buffer;
+}
+
 
 /*
 ============

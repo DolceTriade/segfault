@@ -1068,6 +1068,9 @@ void CL_InitKeyCommands( void ) {
 	Cmd_AddCommand ("bindlist",Key_Bindlist_f);
 }
 
+// I don't like aliases :(
+qboolean Cmd_isAlias(char *name);
+
 /*
 ===================
 CL_ParseBinding
@@ -1095,10 +1098,31 @@ void CL_ParseBinding( int key, qboolean down, unsigned time )
 			// button commands add keynum and time as parameters
 			// so that multiple sources can be discriminated and
 			// subframe corrected
+			
 			char cmd[1024];
-			Com_sprintf( cmd, sizeof( cmd ), "%c%s %d %d\n",
-				( down ) ? '+' : '-', p + 1, key, time );
-			Cbuf_AddText( cmd );
+			char check[1024];
+			
+			// I have to check for aliases :(
+			sscanf(buf, "%s", check );
+			if( Cmd_isAlias( check ) == qfalse )
+			{
+				Com_sprintf( cmd, sizeof( cmd ), "%c%s %d %d\n",
+					( down ) ? '+' : '-', p + 1, key, time );
+				Cbuf_AddText( cmd );
+			}
+			else
+			{
+				// prevents a bug with bind being used in console...
+				if
+				(!(Key_GetCatcher( ) & KEYCATCH_CONSOLE) &&
+				 !(Key_GetCatcher( ) & KEYCATCH_UI ) &&
+				 !(Key_GetCatcher( ) & KEYCATCH_CGAME ) )
+				{
+					Com_sprintf( cmd, sizeof( cmd ), "%c%s\n",
+						( down ) ? '+' : '-', p + 1 );
+					Cbuf_AddText( cmd );
+				}
+			}
 		}
 		else if( down )
 		{
