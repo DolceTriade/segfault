@@ -72,7 +72,6 @@ cvar_t          *scr_conColorBlue;
 cvar_t          *scr_conColorGreen;
 
 // Console bar color/height
-cvar_t          *scr_conBarColor;
 cvar_t          *scr_conBarColorRed;
 cvar_t          *scr_conBarColorBlue;
 cvar_t          *scr_conBarColorGreen;
