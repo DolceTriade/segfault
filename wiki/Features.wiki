@@ -12,6 +12,8 @@ _math_ - use math functions with vstr
 
 == Reduced map change spam ==
 
+Moved debug text into developer print
+
 {{{---------------------------------------------------}}}
 
 == Console appearance controls ==
@@ -51,3 +53,21 @@ _r_bloom_intensity_ - Intensity of bloom
 _r_bloom_darken_ - How much to darken bloom
 
 _r_bloom_sample_size_ - Number of samples 
+
+{{{---------------------------------------------------}}}
+
+== Delay ==
+
+Similar to wait, but allows for other functions to be used while delay is being used.
+
+{{{---------------------------------------------------}}}
+
+== Aliases ==
+
+_alias_ - Set an alias for a command
+
+_unalias_ - Remove an alias for a command
+
+_aliaslist_ - List all current aliases
+
+_clearaliases_ - Removes all aliases
