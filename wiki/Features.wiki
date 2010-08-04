@@ -2,8 +2,6 @@
 
 _if_ - use if statements
 
-_concat_ - concatenate two strings
-
 _strcmp_ - compare two strings
 
 _math_ - use math functions with vstr
@@ -71,3 +69,11 @@ _unalias_ - Remove an alias for a command
 _aliaslist_ - List all current aliases
 
 _clearaliases_ - Removes all aliases
+
+{{{---------------------------------------------------}}}
+
+== Cvar parsing ==
+
+Allows for the usage of \$cvar\ to replace by the value of cvar. Use \$$cvar\ to retain \$cvar\ when restarting tremulous.
+
+Example: "echo \$name\" will result in "Tachyon"
