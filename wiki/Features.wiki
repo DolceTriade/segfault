@@ -74,6 +74,6 @@ _clearaliases_ - Removes all aliases
 
 == Cvar parsing ==
 
-Allows for the usage of \$cvar\ to replace by the value of cvar. Use \$$cvar\ to retain \$cvar\ when restarting tremulous.
+Allows for the usage of \$cvar\ be to replace by the value of the cvar. Use \$$cvar\ to retain \$cvar\ when restarting tremulous.
 
 Example: "echo \$name\" will result in "Tachyon"
